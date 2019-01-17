@@ -23,9 +23,9 @@
 class Comment_Tweaks_Activator {
 
 	/**
-	 * Short Description. (use period)
+	 * Activaion NOOP.
 	 *
-	 * Long Description.
+	 * Currently nothing needs done on activation.
 	 *
 	 * @since    1.0.0
 	 */

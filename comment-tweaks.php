@@ -15,7 +15,7 @@
  * @wordpress-plugin
  * Plugin Name:       Comment Tweaks
  * Plugin URI:        https://github.com/jnorell/comment-tweaks/
- * Description:       This is a short description of what the plugin does. It's displayed in the WordPress admin area.
+ * Description:       Enhance Wordpress native comments (enables WP editor)
  * Version:           1.0.0
  * Author:            Jesse Norell
  * Author URI:        https://github.com/jnorell/
@@ -32,10 +32,8 @@ if ( ! defined( 'WPINC' ) ) {
 
 /**
  * Currently plugin version.
- * Start at version 1.0.0 and use SemVer - https://semver.org
- * Rename this for your plugin and update it as you release new versions.
  */
-define( 'PLUGIN_NAME_VERSION', '1.0.0' );
+define( 'COMMENT_TWEAKS_VERSION', '1.0.0' );
 
 /**
  * The code that runs during plugin activation.

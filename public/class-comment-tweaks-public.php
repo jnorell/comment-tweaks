@@ -62,6 +62,11 @@ class Comment_Tweaks_Public {
 	public function enqueue_styles() {
 
 		/**
+		 * Currently none needed.
+		 */
+		return;
+
+		/**
 		 * This function is provided for demonstration purposes only.
 		 *
 		 * An instance of this class should be passed to the run() function
@@ -85,6 +90,24 @@ class Comment_Tweaks_Public {
 	public function enqueue_scripts() {
 
 		/**
+		 * Enqueue WP Editor if needed.
+		 *
+		 * If the current page includes comments to be edited, enqueue the editor.
+		 *
+		 * @todo create admin option to disable this (currently the only plugin functionality)
+		 */
+		if ( user_can_richedit() && is_single() && comments_open() ) {
+			wp_enqueue_media();
+			wp_enqueue_editor();
+
+// @todo should we enqueue comment-reply, or just assume dom matches
+// will prevent undefined functions (addComment.moveForm.apply()) being called?
+//			if ( get_option( 'thread_comments') ) {
+//				wp_enqueue_script( 'comment-reply' );
+//			}
+		}
+
+		/**
 		 * This function is provided for demonstration purposes only.
 		 *
 		 * An instance of this class should be passed to the run() function
@@ -98,6 +121,18 @@ class Comment_Tweaks_Public {
 
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/comment-tweaks-public.js', array( 'jquery' ), $this->version, false );
 
+	}
+
+	/**
+	 * Save #comment onclick data for later use.
+	 *
+	 * Save #comment onclick data for later parsing in javascript
+	 * when creating a new onclick function.
+	 *
+	 * @since    1.0.0
+	 */
+	public function comment_reply_link($link) {
+		return str_replace( 'onclick=', 'data-onclick=', $link );
 	}
 
 }

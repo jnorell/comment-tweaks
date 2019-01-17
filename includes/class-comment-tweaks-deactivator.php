@@ -23,9 +23,9 @@
 class Comment_Tweaks_Deactivator {
 
 	/**
-	 * Short Description. (use period)
+	 * Deactivation NOOP.
 	 *
-	 * Long Description.
+	 * Currently nothing needs done on deactivation.
 	 *
 	 * @since    1.0.0
 	 */

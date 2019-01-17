@@ -67,8 +67,8 @@ class Comment_Tweaks {
 	 * @since    1.0.0
 	 */
 	public function __construct() {
-		if ( defined( 'PLUGIN_NAME_VERSION' ) ) {
-			$this->version = PLUGIN_NAME_VERSION;
+		if ( defined( 'COMMENT_TWEAKS_VERSION' ) ) {
+			$this->version = COMMENT_TWEAKS_VERSION;
 		} else {
 			$this->version = '1.0.0';
 		}
@@ -154,8 +154,9 @@ class Comment_Tweaks {
 
 		$plugin_admin = new Comment_Tweaks_Admin( $this->get_plugin_name(), $this->get_version() );
 
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
+// NOOP, commented for efficiency
+//		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
+//		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 
 	}
 
@@ -170,8 +171,9 @@ class Comment_Tweaks {
 
 		$plugin_public = new Comment_Tweaks_Public( $this->get_plugin_name(), $this->get_version() );
 
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
+//		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
+		$this->loader->add_action( 'comment_reply_link', $plugin_public, 'comment_reply_link' );
 
 	}
 

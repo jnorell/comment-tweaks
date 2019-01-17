@@ -62,6 +62,11 @@ class Comment_Tweaks_Admin {
 	public function enqueue_styles() {
 
 		/**
+		 * Currently none needed.
+		 */
+		return;
+
+		/**
 		 * This function is provided for demonstration purposes only.
 		 *
 		 * An instance of this class should be passed to the run() function
@@ -83,6 +88,11 @@ class Comment_Tweaks_Admin {
 	 * @since    1.0.0
 	 */
 	public function enqueue_scripts() {
+
+		/**
+		 * Currently none needed.
+		 */
+		return;
 
 		/**
 		 * This function is provided for demonstration purposes only.
