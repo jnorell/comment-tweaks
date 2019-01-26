@@ -57,26 +57,11 @@ class Comment_Tweaks_Public {
 	/**
 	 * Register the stylesheets for the public-facing side of the site.
 	 *
+	 * Currently not needed, and disabled in includes/class-comment-tweaks.php.
+	 *
 	 * @since    1.0.0
 	 */
 	public function enqueue_styles() {
-
-		/**
-		 * Currently none needed.
-		 */
-		return;
-
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Comment_Tweaks_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Comment_Tweaks_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
 
 		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/comment-tweaks-public.css', array(), $this->version, 'all' );
 
@@ -89,50 +74,85 @@ class Comment_Tweaks_Public {
 	 */
 	public function enqueue_scripts() {
 
-		/**
-		 * Enqueue WP Editor if needed.
+		/*
+		 * Enqueues WP Editor if needed.
 		 *
 		 * If the current page includes comments to be edited, enqueue the editor.
 		 *
-		 * @todo create admin option to disable this (currently the only plugin functionality)
+		 * @todo create admin option to enable/disable enqueuing media (default disabled)
+		 * @todo create admin option to disable enqueing editor (default enabled)
 		 */
 		if ( user_can_richedit() && is_single() && comments_open() ) {
 			wp_enqueue_media();
 			wp_enqueue_editor();
-
-// @todo should we enqueue comment-reply, or just assume dom matches
-// will prevent undefined functions (addComment.moveForm.apply()) being called?
-//			if ( get_option( 'thread_comments') ) {
-//				wp_enqueue_script( 'comment-reply' );
-//			}
+		} else {
+			/*
+			 * For now the entire plugin functionality is adding the editor,
+			 * so we'll skip all other enqueues if not on those pages.
+			 */
+			return;
 		}
 
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Comment_Tweaks_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Comment_Tweaks_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
-
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/comment-tweaks-public.js', array( 'jquery' ), $this->version, false );
+
+		// Pass nonce and other info to javascript as 'comment_tweaks' object.
+		$comment_tweaks_nonce = wp_create_nonce( 'comment_tweaks' );
+		wp_localize_script( $this->plugin_name, 'comment_tweaks', array(
+			'ajax_url'          => admin_url( 'admin-ajax.php' ),
+			'nonce'             => $comment_tweaks_nonce,
+			'is_user_logged_in' => is_user_logged_in() ? 'true' : 'false',
+		) );
 
 	}
 
 	/**
-	 * Save #comment onclick data for later use.
+	 * Saves comment reply link onclick data when comment_reply_link filter fires.
 	 *
-	 * Save #comment onclick data for later parsing in javascript
-	 * when creating a new onclick function.
+	 * Saves the comment reply link onclick data for later parsing in javascript
+	 * when creating a new onclick function, which is needed to remove
+	 * and initialize wp_editor when moving #comment in the DOM.
+	 * Called by {@see 'comment_reply_link'} filter.
 	 *
 	 * @since    1.0.0
 	 */
-	public function comment_reply_link($link) {
+	public function comment_reply_link( $link ) {
 		return str_replace( 'onclick=', 'data-onclick=', $link );
 	}
 
+	/**
+	 * Returns settings for wp_editor to javascript.
+	 *
+	 * Returns the settings as json to be used directly in wp.editor.initialize(),
+	 * allowing customization via the 'comment_tweaks_editor_settings' filter.
+	 *
+	 * @since    1.0.0
+	 */
+	public function get_editor_settings() {
+		check_ajax_referer( 'comment_tweaks', 'nonce' );
+
+		$editor_id = 'comment';
+		if ( isset( $_POST['editor_id'] ) ) {
+			$editor_id = $_POST['editor_id'];
+			if ( ! preg_match( '/^[A-Za-z][A-Za-z0-9_:\.-]*/', $editor_id ) ) {
+				wp_send_json_error( "Invalid Data: editor_id is not a valid html element id.", 403 );
+				wp_die();
+			}
+		}
+
+		// Use wp.editor.initialize() default (which is: { 'tinymce': true }).
+		$settings = null;
+
+		/**
+		 * Filters wp_editor settings used for editing comments.
+		 *
+		 * @since    1.0.0
+		 *
+		 * @param mixed  $settings  Array of editor arguments.
+		 * @param string $editor_id ID of the editor for which settings are being filtered.  Default: 'comment'.
+		 */
+		$settings = apply_filters( 'comment_tweaks_editor_settings', $settings, $editor_id );
+
+		wp_send_json_success( $settings );
+		wp_die();
+	}
 }

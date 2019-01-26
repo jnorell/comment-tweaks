@@ -1,57 +1,6 @@
 (function( $ ) {
 	'use strict';
 
-	/**
-	 * All of the code for your public-facing JavaScript source
-	 * should reside in this file.
-	 *
-	 * Note: It has been assumed you will write jQuery code here, so the
-	 * $ function reference has been prepared for usage within the scope
-	 * of this function.
-	 *
-	 * This enables you to define handlers, for when the DOM is ready:
-	 *
-	 * $(function() {
-	 *
-	 * });
-	 *
-	 * When the window is loaded:
-	 *
-	 * $( window ).load(function() {
-	 *
-	 * });
-	 *
-	 * ...and/or other possibilities.
-	 *
-	 * Ideally, it is not considered best practise to attach more than a
-	 * single DOM-ready or window-load handler for a particular page.
-	 * Although scripts in the WordPress core, Plugins and Themes may be
-	 * practising this, we should strive to set a better example in our own work.
-	 */
-
-	// @todo: load settings via ajax
-	// settings for initializing wp editor
-	var editorSettings = { };
-	$(function() {
-		if ( typeof wp !== 'undefined' && typeof wp.editor !== 'undefined' ) {
-			editorSettings = wp.editor.getDefaultSettings();
-		}
-		editorSettings.quicktags = false;
-		// logged in users more featured editor
-		if ( $( 'body' ).hasClass( 'logged-in' ) ) {
-			editorSettings = {
-				mediaButtons: true,
-				tinymce: {
-					media_buttons: true,
-					toolbar1: 'bold,italic,underline,bullist,numlist,aligncenter,blockquote,link,undo,redo',
-					plugins: 'charmap,colorpicker,hr,lists,paste,tabfocus,textcolor,fullscreen,wordpress,wpautoresize,wpeditimage,wpemoji,wpgallery,wplink,wptextpattern,media',
-					relative_urls: true
-				},
-				quicktags: { buttons: 'strong,em,ul,ol,li,block,link,img,close' }
-			};
-		}
-	});
-
 	$(function() {
 		if ( typeof wp === 'undefined' || typeof wp.editor === 'undefined' ) {
 			return;
@@ -59,43 +8,88 @@
 
 		if ( typeof window.commentTweaks === 'undefined' ) {
 			window.commentTweaks = {};
-			window.commentTweaks.editorSettings = true;
-			window.commentTweaks.delayedInit = {};
+			window.commentTweaks.editorSettings = null;
 
-			window.commentTweaks.setEditorSettings = function( settings = null ) {
-				if ( settings !== null ) {
-					window.commentTweaks.editorSettings = settings;
-				}
+			/**
+			 * Saves settings to use when initializing wp.editor.
+			 *
+			 * @since 1.0.0
+			 *
+			 * @todo Allow specifying an editor id and save settings for multiple editors.
+			 *
+			 * @param {object} settings Configuration to save for newly initialized editors.
+			 */
+			window.commentTweaks.setEditorSettings = function( settings ) {
+				window.commentTweaks.editorSettings = settings;
 			}
 
+			/**
+			 * Adds wp.editor to dom element with the specified id.
+			 *
+			 * @since 1.0.0
+			 *
+			 * @param {string} id       ID of the dom element to initialize with wp.editor.
+			 * @param {object} settings Optional.  Configuration for the newly initialized editor.
+			 */
 			window.commentTweaks.initializeEditor = function( id, settings = null ) {
-				if ( id in window.commentTweaks.delayedInit ) {
-					delete window.commentTweaks.delayedInit[ id ];
+				if ( settings !== null ) {
+					window.commentTweaks.setEditorSettings( settings );
 				}
-				window.commentTweaks.setEditorSettings( settings );
 
 				/*
-				 * @todo: test if editor for 'id' is already initialized
-				 * (multiple calls to initialize() break things)
+				 * @todo test if editor for 'id' is already initialized
+				 * (multiple calls to initialize() breaks things)
 				 */
 				wp.editor.initialize( id, window.commentTweaks.editorSettings );
 			}
 
+			/**
+			 * Removes wp.editor with the specified id.
+			 *
+			 * @since 1.0.0
+			 *
+			 * @param {string} id ID of the editor to be removed.
+			 */
 			window.commentTweaks.removeEditor = function( id ) {
 				wp.editor.remove( id );
 			}
+
+			/*
+			 * @todo Define an event to load editor settings via javascript.
+			 *
+			 * The js event will fire first, before the ajax call which initializes
+			 * the editor.
+			 */
 
 		}
 
 		var ct = window.commentTweaks;
 
-		// @todo: load settings via ajax
-		ct.setEditorSettings( editorSettings );
+		// get editor settings for 'comment' editor
+		var ajaxData = {
+			'action':    'get_editor_settings',
+			'nonce':     comment_tweaks.nonce,
+			'editor_id': 'comment'
+		};
+		$.post( comment_tweaks.ajax_url, ajaxData, function( response ) {
+			if ( response.success === true ) {
+				ct.setEditorSettings( response.data );
+			}
 
-		// add editor to comments field
-		ct.initializeEditor( 'comment' );
+			// add editor to 'comment' field in ajax response
+			ct.initializeEditor( 'comment' );
+		});
 
-		// when replying to a comment, remove editor before the dom change, and add afterwards
+
+		/**
+		 * Handles removing and adding the editor to 'comment' when replying to a comment.
+		 *
+		 * When threaded comments are enabled, replying to an earlier comment moves
+		 * #comment within the dom, so we must remove the editor before the dom change
+		 * and add it again afterwards.
+		 *
+		 * @since 1.0.0
+		 */
 		$( '.comment-reply-link' ).click( function( e ) {
 			e.preventDefault();
 
@@ -110,16 +104,21 @@
 
 			ct.initializeEditor( 'comment' );
 
-			// save original onclick handler (created by addComment.moveForm above)
+			// save original onclick handler added by addComment.moveForm()
 			var cancelLink = document.getElementById( 'cancel-comment-reply-link' );
 			if ( typeof cancelLink.saveOnClick !== 'function' ) {
 				cancelLink.saveOnClick = cancelLink.onclick;
 			}
 
 			/*
-			 * cancel link: remove editor, call original handler, then add editor back
+			 * Overwrites the cancel comment reply link onclick handler.
 			 *
-			 * this overwrites the onclick handler created by addComment.moveForm (above)
+			 * Overwrites the onclick handler for the cancel comment reply link
+			 * (added dynamically by addComment.moveForm()), which moves #comment
+			 * within the DOM.  First remove editor, call original handler,
+			 * then add the editor back.
+			 *
+			 * @since 1.0.0
 			 */
 			cancelLink.onclick = function() {
 				var ct = window.commentTweaks;

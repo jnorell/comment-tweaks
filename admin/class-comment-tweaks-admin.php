@@ -57,26 +57,11 @@ class Comment_Tweaks_Admin {
 	/**
 	 * Register the stylesheets for the admin area.
 	 *
+	 * Currently not needed, and disabled in includes/class-comment-tweaks.php.
+	 *
 	 * @since    1.0.0
 	 */
 	public function enqueue_styles() {
-
-		/**
-		 * Currently none needed.
-		 */
-		return;
-
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Comment_Tweaks_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Comment_Tweaks_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
 
 		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/comment-tweaks-admin.css', array(), $this->version, 'all' );
 
@@ -85,26 +70,11 @@ class Comment_Tweaks_Admin {
 	/**
 	 * Register the JavaScript for the admin area.
 	 *
+	 * Currently not needed, and disabled in includes/class-comment-tweaks.php.
+	 *
 	 * @since    1.0.0
 	 */
 	public function enqueue_scripts() {
-
-		/**
-		 * Currently none needed.
-		 */
-		return;
-
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Comment_Tweaks_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Comment_Tweaks_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
 
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/comment-tweaks-admin.js', array( 'jquery' ), $this->version, false );
 

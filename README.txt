@@ -16,10 +16,7 @@ Comment Tweaks provides enhancements to Wordpress native comments.
 = Features =
 
 *   Add WP editor (quicktags and/or tinymce) to comments area
-
-Yes, a single feature.  This is the initial release.  :)
-
-@todo: Note on wp_editor settings filter...
+*   Filter to customize WP editor settings (buttons/appearance)
 
 == Installation ==
 
@@ -50,10 +47,27 @@ possible using a filter, there is currently no settings page.
 
 = How can I customize the WP editor settings =
 
-You can use the `comment_tweaks_wp_editor_settings` filter to customize the appearance of WP editor.
+You can use the `comment_tweaks_editor_settings` filter to customize the appearance of WP editor.
 
 ``
-<?php echo example( "@todo" ); ?>
+<?php
+
+add_filter( 'comment_tweaks_editor_settings', function( $settings, $editor_id ) {
+
+	$settings = array(
+		'tinymce'      => array(
+			'toolbar1'      => 'bold,italic,underline,bullist,numlist,aligncenter,blockquote,link,undo,redo',
+			'plugins'       => 'charmap,colorpicker,hr,lists,paste,tabfocus,textcolor,fullscreen,wordpress,wpautoresize,wpeditimage,wpemoji,wpgallery,wplink,wptextpattern,media',
+			'relative_urls' => true,
+		),
+		'quicktags'    => false,
+	);
+
+	return $settings;
+
+}, 10, 2);
+
+?>
 ``
 
 = Can I use the 'Add Media' button =
@@ -62,7 +76,28 @@ Yes, the 'Add Media' button can be enabled using custom settings for the WP edit
 allowing site users to access media.
 
 ``
-<?php echo another_example( "@todo" ); ?>
+<?php
+
+add_filter( 'comment_tweaks_editor_settings', function( $settings, $editor_id ) {
+
+	$settings = array(
+		'mediaButtons' => true,
+		'tinymce'      => array(
+			'media_buttons' => true,
+			'toolbar1'      => 'bold,italic,underline,bullist,numlist,aligncenter,blockquote,link,undo,redo',
+			'plugins'       => 'charmap,colorpicker,hr,lists,paste,tabfocus,textcolor,fullscreen,wordpress,wpautoresize,wpeditimage,wpemoji,wpgallery,wplink,wptextpattern,media',
+			'relative_urls' => true,
+		),
+		'quicktags'    => array(
+			'buttons'       => 'strong,em,ul,ol,li,block,link,img,close',
+		),
+	);
+
+	return $settings;
+
+}, 10, 2);
+
+?>
 ``
 
 = Image captions display the [caption] shortcode =
@@ -77,7 +112,7 @@ shortcodes, you can easily allow anonymous users with many ways to abuse your si
 
 == Screenshots ==
 
-1. @todo:  WP editor for comments area (/assets/screenshot-1.png)
+1. WP editor enabled for comment field in twentynineteen theme.
 
 == Changelog ==
 
@@ -86,5 +121,6 @@ shortcodes, you can easily allow anonymous users with many ways to abuse your si
 Release Date:  TBD (FIXME)
 
 * Initial plugin version
-* Single feature: adding the WP editor to comments area
+* Adding the WP editor to comments area.
+* Add 'comment_tweaks_editor_settings' filter to customize WP editor.
 
