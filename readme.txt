@@ -119,7 +119,7 @@ shortcodes, you can easily allow anonymous users with many ways to abuse your si
 
 = 1.0.0 =
 
-Release Date:  TBD (FIXME)
+Release Date:  January 31, 2019
 
 * Initial plugin version
 * Adding the WP editor to comments area.
