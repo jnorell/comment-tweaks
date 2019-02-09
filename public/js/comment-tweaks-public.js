@@ -6,6 +6,10 @@
 			return;
 		}
 
+		if ( comment_tweaks.wp_editor === 'false' ) {
+			return;
+		}
+
 		if ( typeof window.commentTweaks === 'undefined' ) {
 			window.commentTweaks = {};
 			window.commentTweaks.editorSettings = null;
@@ -65,20 +69,25 @@
 
 		var ct = window.commentTweaks;
 
-		// get editor settings for 'comment' editor
-		var ajaxData = {
-			'action':    'get_editor_settings',
-			'nonce':     comment_tweaks.nonce,
-			'editor_id': 'comment'
-		};
-		$.post( comment_tweaks.ajax_url, ajaxData, function( response ) {
-			if ( response.success === true ) {
-				ct.setEditorSettings( response.data );
-			}
+		if ( comment_tweaks.get_editor_settings === 'true' ) {
+			// get editor settings for 'comment' editor
+			var ajaxData = {
+				'action':    'get_editor_settings',
+				'nonce':     comment_tweaks.nonce,
+				'editor_id': 'comment'
+			};
+			$.post( comment_tweaks.ajax_url, ajaxData, function( response ) {
+				if ( response.success === true ) {
+					ct.setEditorSettings( response.data );
+				}
 
-			// add editor to 'comment' field in ajax response
+				// add editor to 'comment' field in ajax response
+				ct.initializeEditor( 'comment' );
+			});
+		} else {
+			// skipping ajax, add editor to 'comment' field now
 			ct.initializeEditor( 'comment' );
-		});
+		}
 
 
 		/**

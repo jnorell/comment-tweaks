@@ -40,7 +40,9 @@ Yes.  The editor added to comments will be the WP editor (quicktags and/or tinym
 
 = I can't find any settings for the plugin, are there any =
 
-No, currently the plugin has only a single function, to enable the WP editor in comments area, so just disable the plugin if you want that feature disabled.  Customizing the editor settings is possible using a filter, there is currently no settings page.
+Yes, the plugin settings are under Settings > Discussion.
+
+Customizing the editor settings is possible using a filter, there is currently no settings page for this.
 
 = How can I customize the WP editor settings =
 
@@ -103,6 +105,16 @@ If anonymous users can add comments, and those comments are processed to execute
 1. WP editor enabled for comment field in twentynineteen theme.
 
 == Changelog ==
+
+= 1.1.0 =
+
+Release Date:  February 8, 2019
+
+* Add functions to manage plugin options.
+* Save plugin version at activation.
+* Add admin setting for whether to add wp_editor to comments.
+* Don't make ajax call if no comment_tweaks_editor_settings filters are set.
+* @todo: comment mode allow users to edit their own comments, post author can not
 
 = 1.0.0 =
 

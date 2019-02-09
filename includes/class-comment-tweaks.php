@@ -158,6 +158,13 @@ class Comment_Tweaks {
 		// $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		// $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 
+		// Add and register admin settings when needed
+		if ( ! empty ( $GLOBALS['pagenow'] )
+		    and ( 'options-discussion.php' === $GLOBALS['pagenow'] or 'options.php' === $GLOBALS['pagenow'] )
+		   ) {
+			$this->loader->add_action( 'admin_init', $plugin_admin, 'admin_settings' );
+		}
+
 	}
 
 	/**
@@ -176,7 +183,7 @@ class Comment_Tweaks {
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
 		$this->loader->add_action( 'comment_reply_link', $plugin_public, 'comment_reply_link' );
 
-		if ( is_admin() ) {
+		if ( is_admin() && $this->get_option( 'wp_editor' ) ) {
 			$this->loader->add_action( 'wp_ajax_get_editor_settings', $plugin_public, 'get_editor_settings' );
 			$this->loader->add_action( 'wp_ajax_nopriv_get_editor_settings', $plugin_public, 'get_editor_settings' );
 		}
@@ -221,6 +228,85 @@ class Comment_Tweaks {
 	 */
 	public function get_version() {
 		return $this->version;
+	}
+
+	/**
+	 * Retrieve wp_option used by the plugin and fill default values.
+	 *
+	 * This is akin to wordpress get_options(), but storing our plugin
+	 * options as an array in a single wp_option.
+	 *
+	 * @since     1.1.0
+	 * @return    array    The plugin options.
+	 */
+	public static function get_options() {
+
+		$default_options = array(
+		    'version' => ( defined ( 'COMMENT_TWEAKS_VERSION' ) ? COMMENT_TWEAKS_VERSION : null ),
+		    'wp_editor' => 1,
+		);
+
+		$options = get_option( 'comment_tweaks' );
+
+		if ( ! is_array( $options ) ) {
+			return $default_options;
+		}
+
+		$options = array_merge( $default_options, $options );
+
+		return $options;
+	}
+
+	/**
+	 * Retrieve a single option within the wp_option array used by the plugin.
+	 *
+	 * This is akin to wordpress get_option(), but storing our plugin
+	 * options as an array in a single wp_option.
+	 *
+	 * @since     1.1.0
+	 * @return    mixed    The named option from the plugin options or null.
+	 */
+	public static function get_option( $name ) {
+		$options = Comment_Tweaks::get_options();
+
+		return isset( $options[$name] ) ? $options[$name] : null;
+	}
+
+	/**
+	 * Set an option within the wp_option array used by the plugin.
+	 *
+	 * This is akin to wordpress update_option(), but storing our plugin
+	 * options as an array in a single wp_option.  *
+	 * @since     1.1.0
+	 * @param     string    $name    The name of the option to set.
+	 * @param     mixed     $value   The value of the option to set.
+	 * @return    boolean   True if option value has changed, false if not or if update failed.
+	 */
+	public static function update_option( $name, $value ) {
+		$options = Comment_Tweaks::get_options();
+
+		if ( isset( $options[$name] ) && $options[$name] === $value ) {
+			return false;
+		}
+
+		$options[$name] = $value;
+
+		return update_option( 'comment_tweaks', $options );
+	}
+
+	/**
+	 * Add an option within the wp_option array used by the plugin.
+	 *
+	 * This is akin to wordpress add_option(), but storing our plugin
+	 * options as an array in a single wp_option.
+	 *
+	 * @since     1.1.0
+	 * @param     string    $name    The name of the option to set.
+	 * @param     mixed     $value   The value of the option to set.
+	 * @return    boolean   True if option value has changed, false if not or if update failed.
+	 */
+	public static function add_option( $name, $value ) {
+		return Comment_Tweaks::update_options( $name, $value );
 	}
 
 }

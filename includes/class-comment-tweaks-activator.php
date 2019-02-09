@@ -23,14 +23,32 @@
 class Comment_Tweaks_Activator {
 
 	/**
-	 * Activaion NOOP.
+	 * Perform needed updates from previous versions and store current version number.
 	 *
-	 * Currently nothing needs done on activation.
+	 * - No updates currently needed, merely save the version number.
 	 *
 	 * @since    1.0.0
 	 */
 	public static function activate() {
 
+		$updated_to = Comment_Tweaks::get_option( 'version' );
+
+		/* version-dependent updates when needed...
+		if ( version_compare( $updated_to, '1.2.3' ) < 0 ) {
+			// do updates for 1.2.3
+			$updated_to = '1.2.3';
+		}
+		if ( version_compare( $updated_to, '2.3.4' ) < 0 ) {
+			// do updates for 2.3.4
+			$updated_to = '2.3.4';
+		}
+		*/
+
+		if ( version_compare( $updated_to, COMMENT_TWEAKS_VERSION ) < 0 ) {
+			$updated_to = COMMENT_TWEAKS_VERSION;
+		}
+
+		Comment_Tweaks::update_option( 'version', $updated_to );
 	}
 
 }

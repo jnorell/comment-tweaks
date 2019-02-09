@@ -80,11 +80,12 @@ class Comment_Tweaks_Public {
 		 * If the current page includes comments to be edited, enqueue the editor.
 		 *
 		 * @todo create admin option to enable/disable enqueuing media (default disabled)
-		 * @todo create admin option to disable enqueing editor (default enabled)
 		 */
 		if ( user_can_richedit() && is_single() && comments_open() ) {
-			wp_enqueue_media();
-			wp_enqueue_editor();
+			if ( Comment_Tweaks::get_option( 'wp_editor' ) ) {
+				wp_enqueue_media();
+				wp_enqueue_editor();
+			}
 		} else {
 			/*
 			 * For now the entire plugin functionality is adding the editor,
@@ -98,9 +99,11 @@ class Comment_Tweaks_Public {
 		// Pass nonce and other info to javascript as 'comment_tweaks' object.
 		$comment_tweaks_nonce = wp_create_nonce( 'comment_tweaks' );
 		wp_localize_script( $this->plugin_name, 'comment_tweaks', array(
-			'ajax_url'          => admin_url( 'admin-ajax.php' ),
-			'nonce'             => $comment_tweaks_nonce,
-			'is_user_logged_in' => is_user_logged_in() ? 'true' : 'false',
+			'ajax_url'            => admin_url( 'admin-ajax.php' ),
+			'nonce'               => $comment_tweaks_nonce,
+			'is_user_logged_in'   => is_user_logged_in() ? 'true' : 'false',
+			'wp_editor'           => Comment_Tweaks::get_option( 'wp_editor' ) ? 'true' : 'false',
+			'get_editor_settings' => has_filter( 'comment_tweaks_editor_settings' ) ? 'true' : 'false',
 		) );
 
 	}
