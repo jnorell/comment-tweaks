@@ -92,16 +92,27 @@ class Comment_Tweaks_Admin {
 
 		// add settings so they will display
 		add_settings_field(
-			"comment_tweaks_wp_editor",
+			"comment_tweaks",
 			__( 'Comment Editing' ),
-			array( $this, 'settings_checkbox' ),
+			array( $this, 'settings_checkboxes' ),
 			'discussion',
 			'default',
 			array(
-			    'id'      => 'comment_tweaks_wp_editor',
-			    'name'    => 'comment_tweaks[wp_editor]',
-			    'label'   => __( 'Use WP Editor to edit comments' ),
-			    'checked' => $this->sanitize_boolean( $options['wp_editor'] ),
+			    'legend'     => __( 'Comment Editing' ),
+			    'checkboxes' => array(
+			        array(
+			            'id'      => 'comment_tweaks_wp_editor',
+			            'name'    => 'comment_tweaks[wp_editor]',
+			            'label'   => __( 'Use WP Editor to edit comments.' ),
+			            'checked' => $this->sanitize_boolean( $options['wp_editor'] ),
+			        ),
+			        array(
+			            'id'      => 'comment_tweaks_edit_own_comments',
+			            'name'    => 'comment_tweaks[edit_own_comments]',
+			            'label'   => __( 'Comment authors can edit their comments.  Default Wordpress behavior is to allow post authors to edit all comments on their posts.  When enabled, this option lets users who are logged in edit their own comments, while post authors can still edit comments from anonymous users.' ),
+			            'checked' => $this->sanitize_boolean( $options['edit_own_comments'] ),
+			        ),
+			    ),
 			)
 		);
 
@@ -113,6 +124,63 @@ class Comment_Tweaks_Admin {
 			    'sanitize_callback' => array( $this, 'validate_settings' ),
 			)
 		);
+
+	}
+
+	/**
+	 * Outputs multiple checkboxes for admin settings.
+	 *
+	 * This outputs multiple checkboxes in a fieldset, which will display
+	 * grouped together under a single settings title.
+	 *
+	 * @since    1.1.0
+	 *
+	 * @param    array  $args {
+	 *     'legend'     => @string    $legend    Optional. Screen reader text for the fieldset.
+	 *     'checkboxes' => @array {
+	 *         @array {
+	 *             @string   $id         The HTML id for this checkbox.
+	 *             @string   $name       The HTML name for this checkbox.
+	 *             @string   $label      Optional. The label displayed for this checkbox.
+	 *             @boolean  $checked    Optional. The initial checked state of the checkbox.
+	 *                                   Default is false.
+	 *         }
+	 *     }
+	 * }
+	 */
+	public function settings_checkboxes( $args ) {
+		if ( ! is_array( $args ) ) {
+			return;
+		}
+
+		echo '<fieldset>';
+
+		if ( isset( $args['legend'] ) ) { ?>
+			<legend class="screen-reader-text">
+				<span><?= $args['legend'] ?></span>
+			</legend><?php
+		}
+
+		if ( isset( $args['checkboxes'] )  && is_array( $args['checkboxes'] ) ) {
+
+			$cb_already = false;
+
+			foreach ( $args['checkboxes'] as $cb_settings ) {
+
+				if ( is_array( $cb_settings ) ) {
+
+					if ( $cb_already ) {
+						echo '<br />';
+					} else {
+						$cb_already = true;
+					}
+
+					$this->settings_checkbox( $cb_settings );
+				}
+			}
+		}
+
+		echo '</fieldset>';
 
 	}
 
@@ -130,6 +198,10 @@ class Comment_Tweaks_Admin {
 	 * }
 	 */
 	public function settings_checkbox( $args ) {
+		if ( ! is_array( $args ) ) {
+			return;
+		}
+
 		$id = isset( $args['id'] ) ? $args['id'] : '';
 		$name = isset( $args['name'] ) ? $args['name'] : '';
 		$label = isset( $args['label'] ) ? $args['label'] : false;
@@ -162,7 +234,8 @@ class Comment_Tweaks_Admin {
 
 		$output = Comment_Tweaks::get_options();
 
-		$output['wp_editor'] = @$this->sanitize_boolean( $input['wp_editor'] );
+		$output['wp_editor']         = @$this->sanitize_boolean( $input['wp_editor'] );
+		$output['edit_own_comments'] = @$this->sanitize_boolean( $input['edit_own_comments'] );
 
 		return $output;
 

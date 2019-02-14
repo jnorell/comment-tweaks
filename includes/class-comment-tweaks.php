@@ -78,6 +78,7 @@ class Comment_Tweaks {
 		$this->set_locale();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
+		$this->define_shared_hooks();
 
 	}
 
@@ -181,11 +182,29 @@ class Comment_Tweaks {
 		// Currently not needed, so disabled for efficiency
 		// $this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
-		$this->loader->add_action( 'comment_reply_link', $plugin_public, 'comment_reply_link' );
 
-		if ( is_admin() && $this->get_option( 'wp_editor' ) ) {
-			$this->loader->add_action( 'wp_ajax_get_editor_settings', $plugin_public, 'get_editor_settings' );
-			$this->loader->add_action( 'wp_ajax_nopriv_get_editor_settings', $plugin_public, 'get_editor_settings' );
+		if ( $this->get_option( 'wp_editor' ) ) {
+			$this->loader->add_filter( 'comment_reply_link', $plugin_public, 'comment_reply_link', 10, 4 );
+
+			if ( is_admin() ) {
+				$this->loader->add_action( 'wp_ajax_get_editor_settings', $plugin_public, 'get_editor_settings' );
+				$this->loader->add_action( 'wp_ajax_nopriv_get_editor_settings', $plugin_public, 'get_editor_settings' );
+			}
+		}
+
+	}
+
+	/**
+	 * Register all of the hooks related to functionality of the plugin
+	 * shared by to the admin area and the public-facing side.
+	 *
+	 * @since    1.1.0
+	 * @access   private
+	 */
+	private function define_shared_hooks() {
+
+		if ( $this->get_option( 'edit_own_comments' ) ) {
+			$this->loader->add_filter( 'map_meta_cap', $this, 'meta_cap_edit_comment', 10, 4 );
 		}
 
 	}
@@ -242,8 +261,9 @@ class Comment_Tweaks {
 	public static function get_options() {
 
 		$default_options = array(
-		    'version' => ( defined ( 'COMMENT_TWEAKS_VERSION' ) ? COMMENT_TWEAKS_VERSION : null ),
-		    'wp_editor' => 1,
+		    'version'           => ( defined ( 'COMMENT_TWEAKS_VERSION' ) ? COMMENT_TWEAKS_VERSION : null ),
+		    'wp_editor'         => 1,
+		    'edit_own_comments' => 0,
 		);
 
 		$options = get_option( 'comment_tweaks' );
@@ -308,5 +328,49 @@ class Comment_Tweaks {
 	public static function add_option( $name, $value ) {
 		return Comment_Tweaks::update_options( $name, $value );
 	}
+
+	/**
+	 * Gives 'edit_comment' meta capability to comment author.
+	 *
+	 * Wordpress edit_comment_link() checks the 'edit_comment' meta capability,
+	 * which this remaps to 'read' for logged in users, allowing comment authors
+	 * to edit their own comments, and prohibiting post authors from the comments
+	 * of other users.  Called via {@see 'map_meta_cap'} filter.
+	 *
+	 * @since     1.1.0
+	 */
+	public function meta_cap_edit_comment( $caps, $cap, $user_id, $args ) {
+		if ( $user_id == 0 ) {
+			return $caps;
+		}
+
+		if ( 'edit_comment' === $cap ) {
+			if ( user_can( $user_id, 'moderate_comments' ) ) {
+				return $caps;
+			}
+
+			if ( user_can( $user_id, 'read' ) ) {
+				$comment_id = $args[0];
+				$comment = get_comment( $comment_id, OBJECT );
+				$post_id = $comment->comment_post_ID;
+
+				if ( 'spam' === $comment->comment_approved ) {
+					return $caps;
+				}
+
+				if ( $user_id == $comment->user_id ) {
+					// make 'read' the only required capability for comment authors
+					$caps = [ 'read' ];
+				} elseif ( 0 != $comment->user_id ) {
+					// make 'moderate_comments' required to edit comments by other users
+					$caps[] = 'moderate_comments';
+				}
+				// else anonymous comment, pass $caps unchanged
+			}
+		}
+
+		return $caps;
+
+	} //end meta_cap_edit_comment
 
 }

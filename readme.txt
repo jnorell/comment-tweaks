@@ -8,7 +8,7 @@ Requires PHP: 5.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Enhancements to Wordpress native comments (enables WP editor)
+Enhancements to Wordpress native comments
 
 == Description ==
 
@@ -16,6 +16,7 @@ Comment Tweaks provides enhancements to Wordpress native comments.
 
 = Features =
 
+*   Allow comment authors to edit their own comments
 *   Add WP editor (quicktags and/or tinymce) to comments area
 *   Filter to customize WP editor settings (buttons/appearance)
 
@@ -40,7 +41,7 @@ Yes.  The editor added to comments will be the WP editor (quicktags and/or tinym
 
 = I can't find any settings for the plugin, are there any =
 
-Yes, the plugin settings are under Settings > Discussion.
+Yes, the plugin settings are under Settings > Discussion > Comment Editing.
 
 Customizing the editor settings is possible using a filter, there is currently no settings page for this.
 
@@ -108,13 +109,13 @@ If anonymous users can add comments, and those comments are processed to execute
 
 = 1.1.0 =
 
-Release Date:  February 8, 2019
+Release Date:  February 14, 2019
 
 * Add functions to manage plugin options.
 * Save plugin version at activation.
 * Add admin setting for whether to add wp_editor to comments.
 * Don't make ajax call if no comment_tweaks_editor_settings filters are set.
-* @todo: comment mode allow users to edit their own comments, post author can not
+* Add admin setting to allow comment authors (logged in users) to edit their own comments, the post author can not.
 
 = 1.0.0 =
 
