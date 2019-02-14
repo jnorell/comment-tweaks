@@ -1,7 +1,7 @@
 === Comment Tweaks ===
 Contributors: jnorell
 Tags: comments, editor
-Requires at least: 4.8.0
+Requires at least: 4.8
 Tested up to: 5.0.3
 Stable tag: trunk
 Requires PHP: 5.3
@@ -19,6 +19,14 @@ Comment Tweaks provides enhancements to Wordpress native comments.
 *   Allow comment authors to edit their own comments
 *   Add WP editor (quicktags and/or tinymce) to comments area
 *   Filter to customize WP editor settings (buttons/appearance)
+
+= Bugs, Patches and Feature Requests =
+
+Please submit any security issues found and they will be addressed.
+
+You can submit bug reports or feature requests in the [GitHub issue tracker].  Patches are preferred as pull requests.
+
+[GitHub issue tracker]: https://github.com/jnorell/comment-tweaks/issues
 
 == Installation ==
 
