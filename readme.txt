@@ -20,7 +20,7 @@ Comment Tweaks provides enhancements to Wordpress native comments.
 *   Add WP editor (quicktags and/or tinymce) to comments area
 *   Filter to customize WP editor settings (buttons/appearance)
 
-= Bugs, Patches and Feature Requests =
+= Bugs, Patches & Feature Requests =
 
 Please submit any security issues found and they will be addressed.
 
@@ -32,28 +32,28 @@ You can submit bug reports or feature requests in the [GitHub issue tracker].  P
 
 = WordPress Admin =
 
-Go to the 'Plugins' menu in WordPress, click 'Add New', search for 'Comment Tweaks', and click 'Install Now' for the 'Comment Tweaks' plugin.  Once installed, click 'Activate'
+Go to the 'Plugins' menu in WordPress, click 'Add New', search for 'Comment Tweaks', and click 'Install Now' for the 'Comment Tweaks' plugin.  Once installed, click 'Activate'.
 
 = Plugin Upload =
 
 An alternative to installing via the WordPress admin page is to upload the plugin to the WordPress installation on your web server.
 
-1. Upload the plugin (the entire `comment-tweaks` directory and everything in it) to the `/wp-content/plugins/` directory
-1. Activate the plugin through the 'Plugins' menu in WordPress
+1. Upload the plugin (the entire `comment-tweaks` directory and everything in it) to the `/wp-content/plugins/` directory.
+1. Activate the plugin through the 'Plugins' menu in WordPress.
 
 == Frequently Asked Questions ==
 
-= Does Comment Tweaks work with Gutenberg enabled in WP 5.x =
+= Does Comment Tweaks work with Gutenberg enabled in WP 5.x? =
 
 Yes.  The editor added to comments will be the WP editor (quicktags and/or tinymce), not Gutenberg.
 
-= I can't find any settings for the plugin, are there any =
+= I can't find any settings for the plugin, are there any? =
 
 Yes, the plugin settings are under Settings > Discussion > Comment Editing.
 
 Customizing the editor settings is possible using a filter, there is currently no settings page for this.
 
-= How can I customize the WP editor settings =
+= How can I customize the WP editor settings? =
 
 You can use the `comment_tweaks_editor_settings` filter to customize the appearance of WP editor.
 
@@ -123,13 +123,13 @@ Release Date:  February 14, 2019
 * Save plugin version at activation.
 * Add admin setting for whether to add wp_editor to comments.
 * Don't make ajax call if no comment_tweaks_editor_settings filters are set.
-* Add admin setting to allow comment authors (logged in users) to edit their own comments, the post author can not.
+* Add admin setting to allow comment authors (logged in users) to edit their own comments (post author can not).
 
 = 1.0.0 =
 
 Release Date:  January 31, 2019
 
-* Initial plugin version
+* Initial plugin version.
 * Adding the WP editor to comments area.
 * Add 'comment_tweaks_editor_settings' filter to customize WP editor.
 
