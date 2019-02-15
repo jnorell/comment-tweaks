@@ -155,9 +155,14 @@ class Comment_Tweaks {
 
 		$plugin_admin = new Comment_Tweaks_Admin( $this->get_plugin_name(), $this->get_version() );
 
+		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		// Currently not needed, so disabled for efficiency
-		// $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		// $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
+
+		// Add Settings link to plugin admin screen
+		if ( ! empty ( $GLOBALS['pagenow'] ) and ( 'plugins.php' === $GLOBALS['pagenow'] ) ) {
+			$this->loader->add_action( 'plugin_action_links_comment-tweaks/comment-tweaks.php', $plugin_admin, 'add_action_links' );
+		}
 
 		// Add and register admin settings when needed
 		if ( ! empty ( $GLOBALS['pagenow'] )

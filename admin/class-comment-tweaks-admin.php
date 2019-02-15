@@ -58,8 +58,6 @@ class Comment_Tweaks_Admin {
 	/**
 	 * Register the stylesheets for the admin area.
 	 *
-	 * Currently not needed, and disabled in includes/class-comment-tweaks.php.
-	 *
 	 * @since    1.0.0
 	 */
 	public function enqueue_styles() {
@@ -82,7 +80,20 @@ class Comment_Tweaks_Admin {
 	}
 
 	/**
-	 * Add admin settings fields and Register admin settings.
+	 * Adds Settings link to plugin admin screen.
+	 *
+	 * @since    1.1.1
+	 */
+	public function add_action_links( $links ) {
+
+		$settings = [ 'settings' => '<a href="options-discussion.php#comment_tweaks">' . __( 'Settings' ) . '</a>', ];
+		$links = array_merge( $settings, $links );
+
+		return $links;
+	}
+
+	/**
+	 * Adds admin settings fields and Register admin settings.
 	 *
 	 * @since    1.1.0
 	 */
@@ -98,6 +109,7 @@ class Comment_Tweaks_Admin {
 			'discussion',
 			'default',
 			array(
+			    'anchor'     => 'comment_tweaks',
 			    'legend'     => __( 'Comment Editing' ),
 			    'checkboxes' => array(
 			        array(
@@ -133,9 +145,13 @@ class Comment_Tweaks_Admin {
 	 * This outputs multiple checkboxes in a fieldset, which will display
 	 * grouped together under a single settings title.
 	 *
+	 * This function outputs what is passed to it, escape/encode values as needed
+	 * in the calling function.
+	 *
 	 * @since    1.1.0
 	 *
 	 * @param    array  $args {
+	 *     'anchor'     => @string    $anchor    Optional. HTML anchor name.
 	 *     'legend'     => @string    $legend    Optional. Screen reader text for the fieldset.
 	 *     'checkboxes' => @array {
 	 *         @array {
@@ -151,6 +167,10 @@ class Comment_Tweaks_Admin {
 	public function settings_checkboxes( $args ) {
 		if ( ! is_array( $args ) ) {
 			return;
+		}
+
+		if ( isset( $args['anchor'] ) ) {
+			echo '<a id="' . $args['anchor'] . '_anchor" name="' . $args['anchor'] . '"></a>';
 		}
 
 		echo '<fieldset>';
@@ -186,6 +206,9 @@ class Comment_Tweaks_Admin {
 
 	/**
 	 * Outputs a checkbox for an admin setting.
+	 *
+	 * This function outputs what is passed to it, escape/encode values as needed
+	 * in the calling function.
 	 *
 	 * @since    1.1.0
 	 *

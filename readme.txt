@@ -115,6 +115,12 @@ If anonymous users can add comments, and those comments are processed to execute
 
 == Changelog ==
 
+= 1.1.1 =
+
+Release Date:  TBD
+
+* Add Settings link to plugin admin screen.
+
 = 1.1.0 =
 
 Release Date:  February 14, 2019
