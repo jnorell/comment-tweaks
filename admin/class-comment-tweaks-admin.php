@@ -276,4 +276,49 @@ class Comment_Tweaks_Admin {
 		return ( isset( $input ) && $input ) ? 1 : 0;
 	}
 
+	/**
+	 * Configures WP editor when editing comments on the dashboard.
+	 *
+	 * Called by {@see 'wp_editor_settings'} filter when on comments.php page.
+	 *
+	 * @since    1.1.1
+	 */
+	function wp_editor_settings( $settings, $id = 'content' ) {
+		if ( ! ( is_admin() || user_can_richedit() ) ) {
+			return $settings;
+		}
+
+		global $pagenow;
+
+		if ( 'content' === $id && 'comment.php' === $pagenow ) {
+
+			/** This filter is documented in public/class-comment-tweaks-public.php */
+			$settings = apply_filters( 'comment_tweaks_editor_settings', $settings, $id );
+
+			/* When tinymce is set, comment content is run through format_for_editor() */
+			if ( isset( $settings['tinymce'] ) && false !== $settings['tinymce'] ) {
+				add_filter( 'the_editor_content',  array( $this, 'unformat_for_editor' ), 20, 2 );
+			}
+
+		}
+
+		return $settings;
+	}
+
+	/**
+	 * Reverse formatting done by format_for_editor();
+	 *
+	 * @since    1.1.1
+	 *
+	 * @param    string    $text    The HTML text being loaded in the editor.
+	 * @return   string    HTML text after reversing format_for_editor().
+	 */
+	function unformat_for_editor( $text ) {
+
+	    /* format_for_editor() runs:  htmlspecialchars( $text, ENT_NOQUOTES, get_option( 'blog_charset' ) ); */
+	    $text = htmlspecialchars_decode( $text, ENT_NOQUOTES );
+
+	    return $text;
+	}
+
 }

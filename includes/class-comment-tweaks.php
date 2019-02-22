@@ -161,7 +161,7 @@ class Comment_Tweaks {
 
 		// Add Settings link to plugin admin screen
 		if ( ! empty ( $GLOBALS['pagenow'] ) and ( 'plugins.php' === $GLOBALS['pagenow'] ) ) {
-			$this->loader->add_action( 'plugin_action_links_comment-tweaks/comment-tweaks.php', $plugin_admin, 'add_action_links' );
+			$this->loader->add_filter( 'plugin_action_links_comment-tweaks/comment-tweaks.php', $plugin_admin, 'add_action_links', 10, 1 );
 		}
 
 		// Add and register admin settings when needed
@@ -169,6 +169,11 @@ class Comment_Tweaks {
 		    and ( 'options-discussion.php' === $GLOBALS['pagenow'] or 'options.php' === $GLOBALS['pagenow'] )
 		   ) {
 			$this->loader->add_action( 'admin_init', $plugin_admin, 'admin_settings' );
+		}
+
+		//  Configure rich text editor for editing comments on the dashboard.
+		if ( ! empty ( $GLOBALS['pagenow'] ) and ( 'comment.php' === $GLOBALS['pagenow'] ) ) {
+			$this->loader->add_filter( 'wp_editor_settings', $plugin_admin, 'wp_editor_settings', 10, 1 );
 		}
 
 	}

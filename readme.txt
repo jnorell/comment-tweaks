@@ -117,25 +117,26 @@ If anonymous users can add comments, and those comments are processed to execute
 
 = 1.1.1 =
 
-Release Date:  TBD
+Release Date:  February 22, 2019
 
-* Add Settings link to plugin admin screen.
+* Improvement: Add Settings link to plugin admin screen.
+* Fix: Reverse format_for_editor() when editing comments in the dashboard and tinymce is loaded.
 
 = 1.1.0 =
 
 Release Date:  February 14, 2019
 
-* Add functions to manage plugin options.
-* Save plugin version at activation.
-* Add admin setting for whether to add wp_editor to comments.
-* Don't make ajax call if no comment_tweaks_editor_settings filters are set.
-* Add admin setting to allow comment authors (logged in users) to edit their own comments (post author can not).
+* Feature:  Allow comment authors (logged in users) to edit their own comments (post author can not).
+* Improvement: Add functions to manage plugin options.
+* Improvement: Add admin setting for whether to add wp_editor to comments.
+* Tweak: Save plugin version at activation.
+* Tweak: Don't make ajax call if no comment_tweaks_editor_settings filters are set.
 
 = 1.0.0 =
 
 Release Date:  January 31, 2019
 
 * Initial plugin version.
-* Adding the WP editor to comments area.
-* Add 'comment_tweaks_editor_settings' filter to customize WP editor.
+* Feature: add the WP editor to comments area.
+* Feature: 'comment_tweaks_editor_settings' filter to customize WP editor.
 

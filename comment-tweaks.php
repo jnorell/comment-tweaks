@@ -16,7 +16,7 @@
  * Plugin Name:       Comment Tweaks
  * Plugin URI:        https://github.com/jnorell/comment-tweaks/
  * Description:       Enhance Wordpress native comments (enables WP editor)
- * Version:           1.1.0
+ * Version:           1.1.1
  * Author:            Jesse Norell
  * Author URI:        https://github.com/jnorell/
  * License:           GPL-2.0+
