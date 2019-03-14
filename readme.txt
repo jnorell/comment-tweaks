@@ -2,7 +2,7 @@
 Contributors: jnorell
 Tags: comments, editor
 Requires at least: 4.8
-Tested up to: 5.1
+Tested up to: 5.1.1
 Stable tag: trunk
 Requires PHP: 5.4
 License: GPLv2 or later
