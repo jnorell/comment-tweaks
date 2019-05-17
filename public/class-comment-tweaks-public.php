@@ -99,7 +99,7 @@ class Comment_Tweaks_Public {
 
 		// Pass nonce and other info to javascript as 'comment_tweaks' object.
 		$comment_tweaks_nonce = wp_create_nonce( 'comment_tweaks' );
-		if ( version_compare( $wp_version, '5.1.1' ) >= 0 ) {
+		if ( get_option( 'thread_comments' ) && version_compare( $wp_version, '5.1' ) >= 0 ) {
 			$wp_editor = 'false';
 		} else {
 			$wp_editor = Comment_Tweaks::get_option( 'wp_editor' ) ? 'true' : 'false';
