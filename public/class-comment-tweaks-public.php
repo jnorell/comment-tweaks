@@ -95,15 +95,17 @@ class Comment_Tweaks_Public {
 			return;
 		}
 
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/comment-tweaks-public.js', array( 'jquery' ), $this->version, false );
+		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/comment-tweaks-public.js', [ 'jquery', 'comment-reply', ], $this->version, false );
 
-		// Pass nonce and other info to javascript as 'comment_tweaks' object.
 		$comment_tweaks_nonce = wp_create_nonce( 'comment_tweaks' );
+
 		if ( get_option( 'thread_comments' ) && version_compare( $wp_version, '5.1' ) >= 0 ) {
 			$wp_editor = 'false';
 		} else {
 			$wp_editor = Comment_Tweaks::get_option( 'wp_editor' ) ? 'true' : 'false';
 		}
+
+		// Pass nonce and other info to javascript as 'comment_tweaks' object.
 		wp_localize_script( $this->plugin_name, 'comment_tweaks', array(
 			'ajax_url'            => admin_url( 'admin-ajax.php' ),
 			'nonce'               => $comment_tweaks_nonce,
@@ -115,17 +117,24 @@ class Comment_Tweaks_Public {
 	}
 
 	/**
-	 * Saves comment reply link onclick data when comment_reply_link filter fires.
+     * Saves comment reply link/post comments link onclick data when comment_reply_link 
+     * or post_comments_link filters fire.
 	 *
-	 * Saves the comment reply link onclick data for later parsing in javascript
-	 * when creating a new onclick function, which is needed to remove
-	 * and initialize wp_editor when moving #comment in the DOM.
+	 * Saves the comment reply link and post comments link onclick data
+	 * for later parsing in javascript when creating a new onclick function,
+	 * which is needed to remove and initialize wp_editor when moving #comment
+	 * in the DOM.
+	 *
 	 * Called by {@see 'comment_reply_link'} filter.
+	 * Called by {@see 'post_comments_link'} filter.
+	 *
+     * WP 5.1 changed event handling for the comments reply link,
+     * but post comments link contiues to need this.
 	 *
 	 * @since    1.0.0
 	 */
 	public function comment_reply_link( $link ) {
-		return str_replace( 'onclick=', 'data-onclick=', $link );
+		return str_replace( ' onclick=', ' data-comment_tweaks-onclick=', $link );
 	}
 
 	/**

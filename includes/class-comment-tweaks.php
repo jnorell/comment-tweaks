@@ -186,6 +186,7 @@ class Comment_Tweaks {
 	 * @access   private
 	 */
 	private function define_public_hooks() {
+		global $wp_version;
 
 		$plugin_public = new Comment_Tweaks_Public( $this->get_plugin_name(), $this->get_version() );
 
@@ -194,7 +195,14 @@ class Comment_Tweaks {
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
 
 		if ( $this->get_option( 'wp_editor' ) ) {
-			$this->loader->add_filter( 'comment_reply_link', $plugin_public, 'comment_reply_link', 10, 4 );
+            // WP 5.1 improved reply/cancel link click handler, no longer uses onclick attribute
+			if ( version_compare( $wp_version, '5.1' ) < 0 ) {
+				$this->loader->add_filter( 'comment_reply_link', $plugin_public, 'comment_reply_link', 10, 4 );
+			}
+
+            // get_post_reply_link() uses the same onclick attribute calling addComment.moveForm(),
+            // even in WP 5.1, filtered via post_comments_link
+			$this->loader->add_filter( 'post_comments_link', $plugin_public, 'comment_reply_link', 10, 4 );
 
 			if ( is_admin() ) {
 				$this->loader->add_action( 'wp_ajax_get_editor_settings', $plugin_public, 'get_editor_settings' );

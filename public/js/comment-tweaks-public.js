@@ -11,8 +11,10 @@
 		}
 
 		if ( typeof window.commentTweaks === 'undefined' ) {
+console.log ( 'commentTweaks: defining window.commentTweaks' );
 			window.commentTweaks = {};
 			window.commentTweaks.editorSettings = null;
+			window.commentTweaks.respondId = null;
 
 			/**
 			 * Saves settings to use when initializing wp.editor.
@@ -36,6 +38,7 @@
 			 * @param {object} settings Optional.  Configuration for the newly initialized editor.
 			 */
 			window.commentTweaks.initializeEditor = function( id, settings = null ) {
+console.log( 'commentTweaks.initializeEditor called for ' + id );
 				if ( settings !== null ) {
 					window.commentTweaks.setEditorSettings( settings );
 				}
@@ -55,7 +58,50 @@
 			 * @param {string} id ID of the editor to be removed.
 			 */
 			window.commentTweaks.removeEditor = function( id ) {
+console.log( 'commentTweaks.removeEditor called for ' + id );
 				wp.editor.remove( id );
+			}
+
+			/**
+			 * Comment reply link click event handler.
+			 *
+			 * @since 1.1.3
+			 *
+			 * @param {Event} event The calling event.
+			 */
+			window.commentTweaks.commentReplyLinkClickEvent = function( event ) {
+				window.commentTweaks.removeEditor( 'comment' );
+				if ( typeof window.addComment.clickEvent === 'function' ) {
+                    console.log ( 'good so far, at this point we should call real clickEvent to move the comment form' );
+					window.addComment.clickEvent( event );
+				}
+				window.commentTweaks.initializeEditor( 'comment' );
+			}
+
+			window.commentTweaks.cancelCommentReplyLinkClickEvent = function( event ) {
+				console.log( 'cancelCommentReplyLinkClickEvent called here' );
+			}
+
+			/**
+			 * Replaces a node with a clone to remove event listeners.
+			 *
+			 * @since 1.1.3
+			 *
+			 * @param {HTMLElement} el           DOM element to clone and replace.
+			 * @param {Boolean}     withChildren True to clone all child elements
+			 *                                   which will remove their event listeners, too.
+			 */
+			window.commentTweaks.recreateNode = function( el, withChildren ) {
+                console.log( 'recreateNode called for ' + el );
+				if ( withChildren ) {
+					el.parentNode.replaceChild( el.cloneNode(true), el );
+				} else {
+					var newEl = el.cloneNode( false );
+					while ( el.hasChildNodes() ) {
+						newEl.appendChild( el.firstChild );
+					}
+					el.parentNode.replaceChild( newEl, el );
+				}
 			}
 
 			/*
@@ -99,48 +145,126 @@
 		 *
 		 * @since 1.0.0
 		 */
-		$( '.comment-reply-link' ).click( function( e ) {
-			e.preventDefault();
+		window.addEventListener( 'load', function() {
 
-			ct.removeEditor( 'comment' );
+		var ctReplyLinks = document.getElementsByClassName( 'comment-reply-link' );
+        var ctCancelLink = document.getElementById( 'cancel-comment-reply-link' );
+		var i;
 
-			var args = $( this ).data( 'onclick' );
-			if ( typeof args !== 'undefined' ) {
-				args = args.replace( /.*\(|\)/gi, '' ).replace( /\"|\s+/g, '' );
-				args = args.split( ',' );
-				addComment.moveForm.apply( addComment, args );
+/* currently there is no reference exported to addComment.clickEvent or addComment.cancelEvent
+		if ( typeof window.addComment.clickEvent === 'function' ) {
+			for ( i = 0; i < ctReplyLinks.length; i++ ) {
+				ctReplyLinks[i].removeEventListener( 'touchstart', window.addComment.clickEvent );
+				ctReplyLinks[i].removeEventListener( 'click',      window.addComment.clickEvent );
+//				ctReplyLinks[i].addEventListener( 'touchstart', ct.commentReplyLinkClickEvent );
+//				ctReplyLinks[i].addEventListener( 'click',      ct.commentReplyLinkClickEvent );
 			}
 
-			ct.initializeEditor( 'comment' );
-
-			// save original onclick handler added by addComment.moveForm()
-			var cancelLink = document.getElementById( 'cancel-comment-reply-link' );
-			if ( typeof cancelLink.saveOnClick !== 'function' ) {
-				cancelLink.saveOnClick = cancelLink.onclick;
+			if ( ctCancelLink ) {
+				ctCancelLink.removeEventListener( 'touchstart', window.addComment.cancelEvent );
+				ctCancelLink.removeEventListener( 'click',      window.addComment.cancelEvent );
+//				ctCancelLink.addEventListener( 'touchstart', ct.cancelCommentReplyLinkClickEvent );
+//				ctCancelLink.addEventListener( 'click',      ct.cancelCommentReplyLinkClickEvent );
 			}
+        }
+ */
 
-			/*
-			 * Overwrites the cancel comment reply link onclick handler.
-			 *
-			 * Overwrites the onclick handler for the cancel comment reply link
-			 * (added dynamically by addComment.moveForm()), which moves #comment
-			 * within the DOM.  First remove editor, call original handler,
-			 * then add the editor back.
-			 *
-			 * @since 1.0.0
-			 */
-			cancelLink.onclick = function() {
-				var ct = window.commentTweaks;
+        // clone all reply link elements to drop their event listeners
+		for ( i = 0; i < ctReplyLinks.length; i++ ) {
+console.log( 'typeof: ' + typeof( ctReplyLinks[i] ) );
+			ct.recreateNode( ctReplyLinks[i] );
+		}
+		if ( ctCancelLink ) {
+console.log( 'typeof cancelLink: ' + typeof( ctCancelLink ) );
+			//ct.recreateNode( ctCancelLink[i] );
+			ct.recreateNode( document.getElementById( 'cancel-comment-reply-link' ) );
+		}
+
+        if ( true ) {
+			$( '.comment-reply-link' ).click( function( e ) {
+				e.preventDefault();
 
 				ct.removeEditor( 'comment' );
 
-				if ( typeof cancelLink.saveOnClick === 'function' ) {
-					cancelLink.saveOnClick();
+				var args = $( this ).data( 'comment_tweaks-onclick' );
+                var respondId = '';
+				if ( typeof args !== 'undefined' ) {
+					// This is comments_reply_link in WP < 5.1.1 or post_comments_link
+console.log( 'Old Wordpress found' );
+					args = args.replace( /.*\(|\)/gi, '' ).replace( /\"|\s+/g, '' );
+					args = args.split( ',' );
+					ct.respondId = args[2];
+					addComment.moveForm.apply( addComment, args );
+				} else {
+console.log( 'New Wordpress found - good luck!' );
+					// wp 5.1.1 no longer adds onclick attribute to comment_reply_link
+					var args = [ $( this ).data( 'belowelement' ) ];
+					args.push( $( this ).data( 'commentid' ) );
+					args.push( $( this ).data( 'respondelement' ) );
+					args.push( $( this ).data( 'postid' ) );
+					ct.respondId = args[2];
+					//addComment.moveForm.apply( addComment, args );
+					window.addComment.moveForm.apply( window.addComment, args );
+
 				}
 
 				ct.initializeEditor( 'comment' );
-			};
-		});
+				if ( typeof tinymce.activeEditor.focus === 'function' ) {
+					tinymce.activeEditor.focus();
+                }
+
+				// save original onclick handler added by addComment.moveForm()
+				var cancelLink = document.getElementById( 'cancel-comment-reply-link' );
+/*
+				if ( typeof cancelLink.saveOnClick !== 'function' ) {
+					cancelLink.saveOnClick = cancelLink.onclick;
+				}
+ */
+
+console.log( 'creating new cancelLink onclick handler' );
+				/*
+				 * Overwrites the cancel comment reply link onclick handler.
+				 *
+				 * Overwrites the onclick handler for the cancel comment reply link
+				 * (added dynamically by addComment.moveForm()), which moves #comment
+				 * within the DOM.  First remove editor, call original handler,
+				 * then add the editor back.
+				 *
+				 * @since 1.0.0
+				 */
+				cancelLink.onclick = function() {
+					var ct = window.commentTweaks;
+console.log( 'custom cancelLink click handler running here, respondId ' + ct.respondId );
+
+					ct.removeEditor( 'comment' );
+
+					// This is basically the cancel link onclick handler from WP 5.0.4.
+					//
+					// addComment.cancelEvent() in WP 5.1.1 and newer implement the same logic,
+					// but we don't have way to reference that function inside the addComment enclosure,
+					// so we will overwrite it and just call this for now.
+					var t       = window.addComment,
+					    temp    = document.getElementById( 'wp-temp-form-div' ),
+					    respond = document.getElementById( ct.respondId );
+
+					if ( temp && respond ) {
+						document.getElementById( 'comment_parent' ).value = '0';
+						temp.parentNode.replaceChild( respondElement ,temporaryElement );
+						this.style.display = 'none';
+						this.onclick = null;
+					}
+
+/*
+					if ( typeof cancelLink.saveOnClick === 'function' ) {
+						cancelLink.saveOnClick();
+					}
+ */
+
+					ct.initializeEditor( 'comment' );
+				};
+			});
+        }
+        });
 	});
 
 })( jQuery );
