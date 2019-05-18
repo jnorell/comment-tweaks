@@ -43,7 +43,7 @@ An alternative to installing via the WordPress admin page is to upload the plugi
 
 == Known Bugs and Compatibility ==
 
-If you are running Wordpress version 5.1 or above and have threaded comments enabled, you will not see the WP editor appear for comments, as the way this plugin adds the WP editor to the comments field is incompatible with changes made to comment replies made 5.1.  A [proper fix] will require changes to both this plugin and to WP core, so watch the [Changelog] in upcoming releases for the fix.
+If you are running Wordpress version 5.1 or above and have threaded comments enabled, you will not see the WP editor appear for comments, as the way this plugin adds the WP editor to the comments field is incompatible with changes made to comment replies in WP 5.1.  A [proper fix] will require changes to both this plugin and to WP core, so watch the [Changelog] in upcoming releases for the fix.
 
 [proper fix]: https://core.trac.wordpress.org/ticket/47306
 [Changelog]: https://wordpress.org/plugins/comment-tweaks/#developers
@@ -121,6 +121,12 @@ If anonymous users can add comments, and those comments are processed to execute
 1. WP editor enabled for comment field in twentynineteen theme.
 
 == Changelog ==
+
+= 1.1.2 =
+
+Release Date:  May 17, 2019
+
+* Incompatibility:  cannot add WP editor to comments on WP 5.1+ with threaded comments enabled.
 
 = 1.1.1 =
 
