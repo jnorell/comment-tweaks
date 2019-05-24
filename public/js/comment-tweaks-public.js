@@ -11,10 +11,8 @@
 		}
 
 		if ( typeof window.commentTweaks === 'undefined' ) {
-console.log ( 'commentTweaks: defining window.commentTweaks' );
 			window.commentTweaks = {};
 			window.commentTweaks.editorSettings = null;
-			window.commentTweaks.respondId = null;
 
 			/**
 			 * Saves settings to use when initializing wp.editor.
@@ -38,7 +36,6 @@ console.log ( 'commentTweaks: defining window.commentTweaks' );
 			 * @param {object} settings Optional.  Configuration for the newly initialized editor.
 			 */
 			window.commentTweaks.initializeEditor = function( id, settings = null ) {
-console.log( 'commentTweaks.initializeEditor called for ' + id );
 				if ( settings !== null ) {
 					window.commentTweaks.setEditorSettings( settings );
 				}
@@ -58,50 +55,7 @@ console.log( 'commentTweaks.initializeEditor called for ' + id );
 			 * @param {string} id ID of the editor to be removed.
 			 */
 			window.commentTweaks.removeEditor = function( id ) {
-console.log( 'commentTweaks.removeEditor called for ' + id );
 				wp.editor.remove( id );
-			}
-
-			/**
-			 * Comment reply link click event handler.
-			 *
-			 * @since 1.1.3
-			 *
-			 * @param {Event} event The calling event.
-			 */
-			window.commentTweaks.commentReplyLinkClickEvent = function( event ) {
-				window.commentTweaks.removeEditor( 'comment' );
-				if ( typeof window.addComment.clickEvent === 'function' ) {
-                    console.log ( 'good so far, at this point we should call real clickEvent to move the comment form' );
-					window.addComment.clickEvent( event );
-				}
-				window.commentTweaks.initializeEditor( 'comment' );
-			}
-
-			window.commentTweaks.cancelCommentReplyLinkClickEvent = function( event ) {
-				console.log( 'cancelCommentReplyLinkClickEvent called here' );
-			}
-
-			/**
-			 * Replaces a node with a clone to remove event listeners.
-			 *
-			 * @since 1.1.3
-			 *
-			 * @param {HTMLElement} el           DOM element to clone and replace.
-			 * @param {Boolean}     withChildren True to clone all child elements
-			 *                                   which will remove their event listeners, too.
-			 */
-			window.commentTweaks.recreateNode = function( el, withChildren ) {
-                console.log( 'recreateNode called for ' + el );
-				if ( withChildren ) {
-					el.parentNode.replaceChild( el.cloneNode(true), el );
-				} else {
-					var newEl = el.cloneNode( false );
-					while ( el.hasChildNodes() ) {
-						newEl.appendChild( el.firstChild );
-					}
-					el.parentNode.replaceChild( newEl, el );
-				}
 			}
 
 			/*
@@ -137,134 +91,151 @@ console.log( 'commentTweaks.removeEditor called for ' + id );
 
 
 		/**
-		 * Handles removing and adding the editor to 'comment' when replying to a comment.
+		 * Overwrites addComment.moveForm() and addComment.cancelEvent()
+		 * to handle removing and adding the editor to #comment when replying to
+		 * or canceling a reply to a comment.
 		 *
-		 * When threaded comments are enabled, replying to an earlier comment moves
-		 * #comment within the dom, so we must remove the editor before the dom change
-		 * and add it again afterwards.
-		 *
-		 * @since 1.0.0
+		 * @since 1.1.3
 		 */
 		window.addEventListener( 'load', function() {
 
-		var ctReplyLinks = document.getElementsByClassName( 'comment-reply-link' );
-        var ctCancelLink = document.getElementById( 'cancel-comment-reply-link' );
-		var i;
-
-/* currently there is no reference exported to addComment.clickEvent or addComment.cancelEvent
-		if ( typeof window.addComment.clickEvent === 'function' ) {
-			for ( i = 0; i < ctReplyLinks.length; i++ ) {
-				ctReplyLinks[i].removeEventListener( 'touchstart', window.addComment.clickEvent );
-				ctReplyLinks[i].removeEventListener( 'click',      window.addComment.clickEvent );
-//				ctReplyLinks[i].addEventListener( 'touchstart', ct.commentReplyLinkClickEvent );
-//				ctReplyLinks[i].addEventListener( 'click',      ct.commentReplyLinkClickEvent );
+			if ( typeof addComment === 'undefined' ) {
+				return;
 			}
 
-			if ( ctCancelLink ) {
-				ctCancelLink.removeEventListener( 'touchstart', window.addComment.cancelEvent );
-				ctCancelLink.removeEventListener( 'click',      window.addComment.cancelEvent );
-//				ctCancelLink.addEventListener( 'touchstart', ct.cancelCommentReplyLinkClickEvent );
-//				ctCancelLink.addEventListener( 'click',      ct.cancelCommentReplyLinkClickEvent );
-			}
-        }
- */
+			// Save addComment.cancelEvent function (if any) prior to overwriting.
+			addComment._commentTweaks_cancelEvent = addComment.cancelEvent;
 
-        // clone all reply link elements to drop their event listeners
-		for ( i = 0; i < ctReplyLinks.length; i++ ) {
-console.log( 'typeof: ' + typeof( ctReplyLinks[i] ) );
-			ct.recreateNode( ctReplyLinks[i] );
-		}
-		if ( ctCancelLink ) {
-console.log( 'typeof cancelLink: ' + typeof( ctCancelLink ) );
-			//ct.recreateNode( ctCancelLink[i] );
-			ct.recreateNode( document.getElementById( 'cancel-comment-reply-link' ) );
-		}
+			/**
+			 * Overwrites addComment.cancelEvent() to handle removing and adding the editor
+			 * to #comment when canceling a replying to a comment.
+			 *
+			 * Note this won't actually overwrite the original cancelEvent until/unless a reference to
+			 * the original cancelEvent function is added to the addComment closure return.
+			 *
+			 * @since 1.1.3
+			 */
+			addComment.cancelEvent = function( event ) {
+				var cancelLink = this;
+				var temporaryElement = document.getElementById( 'wp-temp-form-div' );
+				var respondElement = document.getElementById( addComment._commentTweaks_respondId );
 
-        if ( true ) {
-			$( '.comment-reply-link' ).click( function( e ) {
-				e.preventDefault();
+				// If no #wp-temp-form-div, check for our rename.
+				if ( ! temporaryElement ) {
+					temporaryElement = document.getElementById( 'wp-temp-form-div--comment-tweaks' );
+				}
 
+				if ( ! temporaryElement || ! respondElement ) {
+					// Conditions for cancel link fail.
+					return;
+				}
+
+				// Disable editor.
 				ct.removeEditor( 'comment' );
 
-				var args = $( this ).data( 'comment_tweaks-onclick' );
-                var respondId = '';
-				if ( typeof args !== 'undefined' ) {
-					// This is comments_reply_link in WP < 5.1.1 or post_comments_link
-console.log( 'Old Wordpress found' );
-					args = args.replace( /.*\(|\)/gi, '' ).replace( /\"|\s+/g, '' );
-					args = args.split( ',' );
-					ct.respondId = args[2];
-					addComment.moveForm.apply( addComment, args );
-				} else {
-console.log( 'New Wordpress found - good luck!' );
-					// wp 5.1.1 no longer adds onclick attribute to comment_reply_link
-					var args = [ $( this ).data( 'belowelement' ) ];
-					args.push( $( this ).data( 'commentid' ) );
-					args.push( $( this ).data( 'respondelement' ) );
-					args.push( $( this ).data( 'postid' ) );
-					ct.respondId = args[2];
-					//addComment.moveForm.apply( addComment, args );
-					window.addComment.moveForm.apply( window.addComment, args );
+				// Move the respond form back in place of the temporary element.
+				document.getElementById( 'comment_parent' ).value = '0';
+				temporaryElement.parentNode.replaceChild( respondElement, temporaryElement );
+				cancelLink.style.display = 'none';
 
+				// Re-initialize error.
+				ct.initializeEditor( 'comment' );
+
+				if ( typeof tinymce === 'object' ) {
+					tinymce.get( 'comment' ).setContent( '' );
 				}
 
+				event.preventDefault();
+			};
+
+			// Save addComment.moveForm function prior to overwriting.
+			//
+			// Source: Jetpack comments module by Automattic.
+			// See https://github.com/Automattic/jetpack/blob/2e9efb22810cbd0e60ad2d2a9158e47a4432577c/modules/comments/comments.php#L375-L413
+			addComment._commentTweaks_moveForm = addComment.moveForm;
+
+			/**
+			 * Overwrites addComment.moveForm() to handle removing and adding the editor
+			 * to #comment when replying to a comment.
+			 *
+			 * When threaded comments are enabled, replying to an earlier comment moves
+			 * #comment within the dom, so we must remove the editor before the dom change
+			 * and add it again afterwards.
+			 *
+			 * @since 1.1.3
+			 *
+			 * @return boolean  Return false to prevent default click event.
+			 */
+			addComment.moveForm = function(  commId, parentId, respondId, postId ) {
+				var tempElement = document.getElementById( 'wp-temp-form-div--comment-tweaks' );
+
+				// Change renamed #wp-temp-form-div back to original id.
+				if ( tempElement ) {
+					tempElement.id = 'wp-temp-form-div';
+				}
+
+				// Disable editor.
+				commentTweaks.removeEditor( 'comment' );
+
+				// Save respondId for use in canceEvent.
+				addComment._commentTweaks_respondId = respondId;
+
+				// Call saved/original moveForm.
+				addComment._commentTweaks_moveForm(  commId, parentId, respondId, postId );
+
+				// Re-initialize error.
 				ct.initializeEditor( 'comment' );
+
 				if ( typeof tinymce.activeEditor.focus === 'function' ) {
 					tinymce.activeEditor.focus();
-                }
-
-				// save original onclick handler added by addComment.moveForm()
-				var cancelLink = document.getElementById( 'cancel-comment-reply-link' );
-/*
-				if ( typeof cancelLink.saveOnClick !== 'function' ) {
-					cancelLink.saveOnClick = cancelLink.onclick;
 				}
- */
 
-console.log( 'creating new cancelLink onclick handler' );
-				/*
-				 * Overwrites the cancel comment reply link onclick handler.
-				 *
-				 * Overwrites the onclick handler for the cancel comment reply link
-				 * (added dynamically by addComment.moveForm()), which moves #comment
-				 * within the DOM.  First remove editor, call original handler,
-				 * then add the editor back.
-				 *
-				 * @since 1.0.0
-				 */
-				cancelLink.onclick = function() {
-					var ct = window.commentTweaks;
-console.log( 'custom cancelLink click handler running here, respondId ' + ct.respondId );
+				var cancelElement = document.getElementById( 'cancel-comment-reply-link' );
 
-					ct.removeEditor( 'comment' );
-
-					// This is basically the cancel link onclick handler from WP 5.0.4.
-					//
-					// addComment.cancelEvent() in WP 5.1.1 and newer implement the same logic,
-					// but we don't have way to reference that function inside the addComment enclosure,
-					// so we will overwrite it and just call this for now.
-					var t       = window.addComment,
-					    temp    = document.getElementById( 'wp-temp-form-div' ),
-					    respond = document.getElementById( ct.respondId );
-
-					if ( temp && respond ) {
-						document.getElementById( 'comment_parent' ).value = '0';
-						temp.parentNode.replaceChild( respondElement ,temporaryElement );
-						this.style.display = 'none';
-						this.onclick = null;
-					}
-
-/*
-					if ( typeof cancelLink.saveOnClick === 'function' ) {
-						cancelLink.saveOnClick();
-					}
- */
-
-					ct.initializeEditor( 'comment' );
+				if ( ! cancelElement ) {
+					return false;
 				};
-			});
-        }
-        });
+
+				// If there is a saved cancelEvent function we're on WP 5.1+ and
+				// our custom cancelEvent function will fire, otherwise we need
+				// to set that as the cancel reply link onclick handler.
+				//
+				// Note: to succeed this check, addComment closure return must
+				// contain a reference to cancelEvent, which it does not as of 5.2.1.
+				if ( typeof addComment._commentTweaks_cancelEvent === 'function' ) {
+
+					// remove listener calling original cancelEvent()
+					cancelElement.removeEventListener( 'touchstart', addComment._commentTweaks_cancelEvent );
+					cancelElement.removeEventListener( 'click',      addComment._commentTweaks_cancelEvent );
+
+					// add listener calling our cancelEvent()
+					cancelElement.addEventListener( 'touchstart', addComment.cancelEvent );
+					cancelElement.addEventListener( 'click',      addComment.cancelEvent );
+
+				} else {
+
+					// Rename wp-temp-form-div so original cancel returns false.
+					//
+					// Needed for WP 5.1+, which currently have no reference to cancelEvent
+					// function, and which fires ahead of the onclick event assigned below.
+					document.getElementById( 'wp-temp-form-div' ).id = 'wp-temp-form-div--comment-tweaks';
+
+					// Overwrite original onclick handler added by addComment.moveForm()
+					//
+					// Needed for WP < 5.1, which set cancel link onclick handler inline in original
+					// moveForm() (called above).
+					cancelElement.ontouchstart = addComment.cancelEvent;
+					cancelElement.onclick = addComment.cancelEvent;
+
+				};
+
+				// Return false signals click event handler to run event.preventDefault().
+				return false;
+
+			};
+
+		});
+
 	});
 
 })( jQuery );

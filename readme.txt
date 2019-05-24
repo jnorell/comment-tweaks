@@ -41,8 +41,9 @@ An alternative to installing via the WordPress admin page is to upload the plugi
 1. Upload the plugin (the entire `comment-tweaks` directory and everything in it) to the `/wp-content/plugins/` directory.
 1. Activate the plugin through the 'Plugins' menu in WordPress.
 
-== Known Bugs and Compatibility ==
+== Known Bugs & Compatibility ==
 
+FIXME: remove this bit
 If you are running Wordpress version 5.1 or above and have threaded comments enabled, you will not see the WP editor appear for comments, as the way this plugin adds the WP editor to the comments field is incompatible with changes made to comment replies in WP 5.1.  A [proper fix] will require changes to both this plugin and to WP core, so watch the [Changelog] in upcoming releases for the fix.
 
 [proper fix]: https://core.trac.wordpress.org/ticket/47306
@@ -121,6 +122,14 @@ If anonymous users can add comments, and those comments are processed to execute
 1. WP editor enabled for comment field in twentynineteen theme.
 
 == Changelog ==
+
+= 1.1.3 =
+
+Release Date:  May 24, 2019
+
+* Full compatibility with WP 5.1 and 5.2.
+* Add comment-reply script enqueue dependency.
+* TODO / FIXME: test jetpack comment form changes with this plugin, and maybe set wp_editor = false if the option is enabled
 
 = 1.1.2 =
 
