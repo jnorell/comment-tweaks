@@ -60,6 +60,24 @@
 				wp.editor.remove( id );
 			}
 
+			/**
+			 * Sets editor focus and position cursor at end of content.
+			 *
+			 * @since 1.1.3
+			 *
+			 * @param {string} id ID of the editor to set focus.
+			 */
+			window.commentTweaks.focusEditor = function( id ) {
+				if ( typeof tinymce === 'object' ) {
+					var editor = tinymce.get( id );
+					if ( editor ) {
+						editor.focus();
+						editor.selection.select( editor.getBody(), true );
+						editor.selection.collapse( false );
+					}
+				}
+			}
+
 			/*
 			 * @todo Define an event to load editor settings via javascript.
 			 *
@@ -151,7 +169,7 @@
 				if ( typeof tinymce === 'object' ) {
 					// Preserve editor content when canceling a reply if it existed when hitting Reply.
 					if ( parseInt( preserveContent ) > 0 ) {
-						tinymce.get( 'comment' ).focus();
+						ct.focusEditor( 'comment' );
 					} else {
 						tinymce.get( 'comment' ).setContent( '' );
 					}
@@ -205,7 +223,7 @@
 
 				if ( typeof tinymce === 'object' ) {
 					tinymce.get( 'comment' )._commentTweaks_preserveContent = preserveContent;
-					tinymce.get( 'comment' ).focus();
+					ct.focusEditor( 'comment' );
 				}
 
 				var cancelElement = document.getElementById( 'cancel-comment-reply-link' );
