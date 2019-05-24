@@ -101,6 +101,15 @@ class Comment_Tweaks_Admin {
 
 		$options = Comment_Tweaks::get_options();
 
+		$wp_editor_notes = '';
+
+		if ( Comment_Tweaks::compatibility_check( 'jetpack_comments' ) ) {
+			$wp_editor_notes = '<br /><em>'
+				. sprintf( __( 'Notice: You have the <a href="%s">comments module in Jetpack</a> enabled, which you will need to disable if you wish to use WP Editor to edit comments.' ),
+						admin_url( 'admin.php?page=jetpack#/discussion' ) )
+				. '</em>';
+		}
+
 		// add settings so they will display
 		add_settings_field(
 			"comment_tweaks",
@@ -115,7 +124,7 @@ class Comment_Tweaks_Admin {
 			        array(
 			            'id'      => 'comment_tweaks_wp_editor',
 			            'name'    => 'comment_tweaks[wp_editor]',
-			            'label'   => __( 'Use WP Editor to edit comments.' ),
+			            'label'   => __( 'Use WP Editor to edit comments.' ) . $wp_editor_notes,
 			            'checked' => $this->sanitize_boolean( $options['wp_editor'] ),
 			        ),
 			        array(
@@ -296,10 +305,11 @@ class Comment_Tweaks_Admin {
 			$settings = apply_filters( 'comment_tweaks_editor_settings', $settings, $id );
 
 			/* When tinymce is set, comment content is run through format_for_editor() */
-			if ( isset( $settings['tinymce'] ) && false !== $settings['tinymce'] ) {
-				add_filter( 'the_editor_content',  array( $this, 'unformat_for_editor' ), 20, 2 );
+			if ( isset( $settings['tinymce'] ) && ! empty( $settings['tinymce'] ) ) {
+				if ( ! ( is_bool( $settings['tinymce'] ) && false === $settings['tinymce'] ) ) {
+					add_filter( 'the_editor_content',  array( $this, 'unformat_for_editor' ), 20, 2 );
+				}
 			}
-
 		}
 
 		return $settings;

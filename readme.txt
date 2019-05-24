@@ -2,7 +2,7 @@
 Contributors: jnorell
 Tags: comments, editor
 Requires at least: 4.8
-Tested up to: 5.2
+Tested up to: 5.2.1
 Stable tag: trunk
 Requires PHP: 5.4
 License: GPLv2 or later
@@ -43,11 +43,11 @@ An alternative to installing via the WordPress admin page is to upload the plugi
 
 == Known Bugs & Compatibility ==
 
-FIXME: remove this bit
-If you are running Wordpress version 5.1 or above and have threaded comments enabled, you will not see the WP editor appear for comments, as the way this plugin adds the WP editor to the comments field is incompatible with changes made to comment replies in WP 5.1.  A [proper fix] will require changes to both this plugin and to WP core, so watch the [Changelog] in upcoming releases for the fix.
+You can check bug reports in the [GitHub issue tracker] and check the [Changelog] for fixes.
 
-[proper fix]: https://core.trac.wordpress.org/ticket/47306
 [Changelog]: https://wordpress.org/plugins/comment-tweaks/#developers
+
+1. Jetpack: if you have Jetpack's comments module enabled, that is what you will get for entering comments, not the wp editor.
 
 == Frequently Asked Questions ==
 
@@ -127,9 +127,9 @@ If anonymous users can add comments, and those comments are processed to execute
 
 Release Date:  May 24, 2019
 
-* Full compatibility with WP 5.1 and 5.2.
-* Add comment-reply script enqueue dependency.
-* TODO / FIXME: test jetpack comment form changes with this plugin, and maybe set wp_editor = false if the option is enabled
+* Fix: Full compatibility with WP 5.1 and 5.2.
+* Tweak: Add dependency for comment-reply to script enqueue.
+* Improvement: Check if Jetpack comments module is enabled.
 
 = 1.1.2 =
 

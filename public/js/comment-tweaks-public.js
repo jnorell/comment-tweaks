@@ -117,7 +117,7 @@
 		 *
 		 * @since 1.1.3
 		 */
-		window.addEventListener( 'load', function() {
+		window.addEventListener( 'DOMContentLoaded', function() {
 
 			if ( typeof addComment === 'undefined' ) {
 				return;

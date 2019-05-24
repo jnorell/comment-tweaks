@@ -380,4 +380,31 @@ class Comment_Tweaks {
 
 	} //end meta_cap_edit_comment
 
+	/**
+	 * Tests for incompatiblities in other plugins, themes, etc.
+	 *
+	 * @since     1.1.3
+	 * @param     string    $test    The name of a compatibility test to perform.
+	 * @return    boolean   True if incompatibility is found or error.
+	 */
+	public static function compatibility_check( $test ) {
+
+		// Check for unknown compatibility test names.
+		if ( ! in_array( $test, [ 'jetpack_comments' ] ) ) {
+			return true;
+		}
+
+		// Test if Jetpack comments module is enabled.
+		if ( 'jetpack_comments' === $test ) {
+
+			if ( ! class_exists( 'Jetpack' ) ) {
+				return false;
+			}
+
+			return Jetpack::is_module_active( 'comments' );
+
+		}
+
+		return false;
+	}
 }

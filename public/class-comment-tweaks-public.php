@@ -96,13 +96,19 @@ class Comment_Tweaks_Public {
 
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/comment-tweaks-public.js', [ 'jquery', 'comment-reply', ], $this->version, false );
 
+		if ( Comment_Tweaks::compatibility_check( 'jetpack_comments' ) ) {
+			$wp_editor = 'false';
+		} else {
+			$wp_editor = Comment_Tweaks::get_option( 'wp_editor' ) ? 'true' : 'false';
+		}
+
 		// Pass nonce and other info to javascript as 'comment_tweaks' object.
 		$comment_tweaks_nonce = wp_create_nonce( 'comment_tweaks' );
 		wp_localize_script( $this->plugin_name, 'comment_tweaks', array(
 			'ajax_url'            => admin_url( 'admin-ajax.php' ),
 			'nonce'               => $comment_tweaks_nonce,
 			'is_user_logged_in'   => is_user_logged_in() ? 'true' : 'false',
-			'wp_editor'           => Comment_Tweaks::get_option( 'wp_editor' ) ? 'true' : 'false',
+			'wp_editor'           => $wp_editor,
 			'get_editor_settings' => has_filter( 'comment_tweaks_editor_settings' ) ? 'true' : 'false',
 		) );
 

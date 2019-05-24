@@ -16,8 +16,7 @@
  * Plugin Name:       Comment Tweaks
  * Plugin URI:        https://github.com/jnorell/comment-tweaks/
  * Description:       Enhance Wordpress native comments (enables WP editor)
-FIXME: update to 1.1.3
- * Version:           1.1.2
+ * Version:           1.1.3
  * Author:            Jesse Norell
  * Author URI:        https://github.com/jnorell/
  * License:           GPL-2.0+
@@ -34,8 +33,7 @@ if ( ! defined( 'WPINC' ) ) {
 /**
  * Currently plugin version.
  */
-// FIXME: update to 1.1.3
-define( 'COMMENT_TWEAKS_VERSION', '1.1.2' );
+define( 'COMMENT_TWEAKS_VERSION', '1.1.3' );
 
 /**
  * The code that runs during plugin activation.
