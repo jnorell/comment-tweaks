@@ -43,6 +43,8 @@
 				/*
 				 * @todo test if editor for 'id' is already initialized
 				 * (multiple calls to initialize() breaks things)
+				 *
+				 * (tinymce.editors() returns an array of all editors, loop through)
 				 */
 				wp.editor.initialize( id, window.commentTweaks.editorSettings );
 			}
@@ -130,6 +132,11 @@
 					return;
 				}
 
+				if ( typeof tinymce === 'object' ) {
+					// Preserve editor content when canceling a reply if it existed when hitting Reply.
+					var preserveContent = tinymce.get( 'comment' )._commentTweaks_preserveContent;
+				}
+
 				// Disable editor.
 				ct.removeEditor( 'comment' );
 
@@ -142,7 +149,12 @@
 				ct.initializeEditor( 'comment' );
 
 				if ( typeof tinymce === 'object' ) {
-					tinymce.get( 'comment' ).setContent( '' );
+					// Preserve editor content when canceling a reply if it existed when hitting Reply.
+					if ( parseInt( preserveContent ) > 0 ) {
+						tinymce.get( 'comment' ).focus();
+					} else {
+						tinymce.get( 'comment' ).setContent( '' );
+					}
 				}
 
 				event.preventDefault();
@@ -174,6 +186,11 @@
 					tempElement.id = 'wp-temp-form-div';
 				}
 
+				if ( typeof tinymce === 'object' ) {
+					// Preserve editor content when canceling a reply if it existed when hitting Reply.
+					var preserveContent = tinymce.get( 'comment' ).getContent().length;
+				}
+
 				// Disable editor.
 				commentTweaks.removeEditor( 'comment' );
 
@@ -186,8 +203,9 @@
 				// Re-initialize error.
 				ct.initializeEditor( 'comment' );
 
-				if ( typeof tinymce.activeEditor.focus === 'function' ) {
-					tinymce.activeEditor.focus();
+				if ( typeof tinymce === 'object' ) {
+					tinymce.get( 'comment' )._commentTweaks_preserveContent = preserveContent;
+					tinymce.get( 'comment' ).focus();
 				}
 
 				var cancelElement = document.getElementById( 'cancel-comment-reply-link' );
