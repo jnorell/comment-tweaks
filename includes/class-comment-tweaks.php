@@ -333,7 +333,7 @@ class Comment_Tweaks {
 	 * @return    boolean   True if option value has changed, false if not or if update failed.
 	 */
 	public static function add_option( $name, $value ) {
-		return Comment_Tweaks::update_options( $name, $value );
+		return Comment_Tweaks::update_option( $name, $value );
 	}
 
 	/**
