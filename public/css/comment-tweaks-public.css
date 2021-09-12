@@ -2,3 +2,19 @@
  * All of the CSS for your public-facing functionality should be
  * included in this file.
  */
+
+/* Fix dark button background for twentytwentyone theme */
+.mce-container .mce-widget.mce-btn button:not(:hover):not(:active):not(.has-background) {
+    border-color: transparent;
+    background: 0 0;
+    background-image: initial;
+    background-position-x: 0px;
+    background-position-y: 0px;
+    background-size: initial;
+    background-repeat-x: initial;
+    background-repeat-y: initial;
+    background-attachment: initial;
+    background-origin: initial;
+    background-clip: initial;
+    background-color: initial;
+}

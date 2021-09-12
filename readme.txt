@@ -2,7 +2,7 @@
 Contributors: jnorell
 Tags: comments, editor
 Requires at least: 4.8
-Tested up to: 5.2.1
+Tested up to: 5.8.1
 Stable tag: trunk
 Requires PHP: 5.4
 License: GPLv2 or later
@@ -123,6 +123,14 @@ If anonymous users can add comments, and those comments are processed to execute
 
 == Changelog ==
 
+= 1.1.4 =
+
+Release Date:  Sep 12, 2021
+
+* Fix: Typo 'update_option' function name.
+* Fix: Editor buttons have dark background in twentytwentyone theme.
+* Fix: Settings link top margin in chrome.
+
 = 1.1.3 =
 
 Release Date:  May 24, 2019
@@ -135,7 +143,7 @@ Release Date:  May 24, 2019
 
 Release Date:  May 17, 2019
 
-* Incompatibility:  cannot add WP editor to comments on WP 5.1+ with threaded comments enabled.
+* Incompatibility: cannot add WP editor to comments on WP 5.1+ with threaded comments enabled.
 
 = 1.1.1 =
 
@@ -148,7 +156,7 @@ Release Date:  February 22, 2019
 
 Release Date:  February 14, 2019
 
-* Feature:  Allow comment authors (logged in users) to edit their own comments (post author can not).
+* Feature: Allow comment authors (logged in users) to edit their own comments (post author can not).
 * Improvement: Add functions to manage plugin options.
 * Improvement: Add admin setting for whether to add wp_editor to comments.
 * Tweak: Save plugin version at activation.
