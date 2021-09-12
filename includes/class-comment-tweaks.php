@@ -190,7 +190,7 @@ class Comment_Tweaks {
 		$plugin_public = new Comment_Tweaks_Public( $this->get_plugin_name(), $this->get_version() );
 
 		// Currently not needed, so disabled for efficiency
-		// $this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
+		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
 
 		// is_admin() will return true for calls to load-scripts.php and load-styles.php.

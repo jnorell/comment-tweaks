@@ -12,4 +12,7 @@
   visibility: hidden;
   float: left;
 }
+#comment_tweaks_anchor {
+  scroll-margin-top: 48px;
+}
 
